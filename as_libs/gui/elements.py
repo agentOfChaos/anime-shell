@@ -1,7 +1,6 @@
 from PyQt4 import QtGui, QtCore
 
-from as_libs.thirdparty import termwidget
-
+from depends.pyqtermwidget import pyqterm
 
 def menubar(obejct):
     menuB = obejct.menuBar()
@@ -34,13 +33,5 @@ def toolbar(object):
 
 
 def mainTextEdit(object, layout):
-    class BakaTerm(termwidget.TermWidget):
-        def childExecCommand(self, text):
-            object.controller.shell.write(text)
-        def isCommandComplete(self, text):
-            return len(text) > 0
-
-
-    object.consoletext = BakaTerm()
-    object.consoletext._browser.setStyleSheet('font-size: 11pt; font-family: DejaVu Sans Mono;')
+    object.consoletext = pyqterm.TerminalWidget()
     layout.addWidget(object.consoletext)

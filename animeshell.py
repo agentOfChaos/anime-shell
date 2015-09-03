@@ -24,7 +24,6 @@ class MainWindow(QtGui.QMainWindow):
 
     def initGears(self):
         self.controller.calibrate_audio()
-        self.controller.startupShell()
 
     def setupLayout(self):
         self.lvl1_horiz = QtGui.QHBoxLayout()

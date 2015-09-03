@@ -42,10 +42,6 @@ class Controller(QtCore.QObject):
         self.connect(self.audio_worker, QtCore.SIGNAL("output"), self.processAcquiredVoice)
         self.connect(self.audio_worker, QtCore.SIGNAL("status"), self.statusMessage)
 
-        self.shell = shellworks.Shell()
-        self.shell_worker = CustomThread()
-        self.connect(self.shell_worker, QtCore.SIGNAL("output"), self.shellOutput)
-
 
     @property
     def language(self):
@@ -88,30 +84,7 @@ class Controller(QtCore.QObject):
 
     def processAcquiredVoice(self, data):
         filtered, shouldrun = self.filter.filter(data)
-        prefix = self.window.consoletext._edit.toPlainText()
-        if len(prefix) > 0: prefix += " "
-        self.window.consoletext._edit.setText(prefix + filtered)
-        #self.window.consoletext._edit.append(filtered)
-        if shouldrun:
-            self.window.consoletext.execCurrentCommand()
-
-    def startupShell(self):
-        def capsule(thread):
-            def cback(data):
-                thread.output(data)
-            self.shell.start(cback)
-        self.shell_worker.target = capsule
-        self.shell_worker.start()
-
-    def shellOutput(self, data):
-        pos = data.find("\x07")
-        if pos != -1:
-            data = data[pos+4:]
-        print(repr(data))
-        #conv = ansi2html.Ansi2HTMLConverter()
-        #self.window.consoletext.append(conv.convert(data))
-        if len(data) > 0:
-            self.window.consoletext.appendOutput(ansi_escape.sub("", data))
+        #TODO: rewrite
 
     def runcommand(self, text):
-        self.shell.write(text + "\n")
+        pass # TODO: rewrite
