@@ -5,9 +5,11 @@ class CommandFilter:
 
     specials = {"verbatim" : ["letteralmente"],
                 "capital" : ["maiuscolo"],
-                "back" : ["back"]}
+                "back" : ["back"],
+                "panic" : ["panico"],
+                "ctrl" : ["control"]}
 
-    terminators = ["esegui", "execute", "run"]
+    terminators = ["esegui", "execute", "run", "engage", "engaged", "eseguì", "engagé"]
 
     def __init__(self, language, aliasfile="config/aliases.txt"):
         self.language = language
@@ -18,7 +20,6 @@ class CommandFilter:
         self.loadAliases()
 
     def wordsmatch(self, candidate, stone):
-        print("trying: " + str(candidate) + " , " + str(stone))
         if len(candidate) < len(stone):
             return False
         for step in range(len(stone)):
@@ -32,10 +33,18 @@ class CommandFilter:
                 return k
         return None
 
+    def asciiControl(self, word):
+        letter = word.lower()[0]
+        if letter == "c":
+            return chr(3)
+        elif letter == "d":
+            return chr(4)
+        else:
+            return chr(7)
+
     def parseWords(self, words):
         nomnom = copy.copy(words)
         output = ""
-        print("keyorder: " + str(self.keyorder))
         while len(nomnom) > 0:
             found = False
             for key in self.keyorder:
@@ -49,14 +58,19 @@ class CommandFilter:
                         output += key + " "
                     elif modifier == "capital":
                         output += key.title() + " "
-                    elif modifier == "back":
-                        output = output[:len(output) - 1]
+                    elif modifier == "ctrl":
+                        output += self.asciiControl(key) + " "
                     elif modifier == "":
                         special = self.isSpecialKey(key)
                         if special is not None:
-                            self.stack.append(special)
+                            if special == "back":
+                                output = output[:len(output) - 1]
+                            elif special == "panic":
+                                return "panic", True
+                            else:
+                                self.stack.append(special)
                         elif key in self.terminators:
-                            return output.rstrip(), True
+                            return output, True
                         else:
                             output += self.aliases[key]
                     found = True
@@ -66,8 +80,8 @@ class CommandFilter:
                 if len(self.stack) > 0: modifier = self.stack.pop()
                 if modifier == "capital":
                     output += nomnom.pop(0).title() + " "
-                elif modifier == "back":
-                    output = output[:len(output) - 1]
+                elif modifier == "ctrl":
+                    output += self.asciiControl(nomnom.pop(0)) + " "
                 elif modifier != "":
                     self.stack.append(modifier)
                 else:
@@ -85,13 +99,6 @@ class CommandFilter:
         return string.split(" ")
 
     def loadAliases(self):
-        def sortkeys(a, b):
-            if self.countwords(a) > self.countwords(b):
-                return -1
-            elif self.countwords(a) < self.countwords(b):
-                return 1
-            else:
-                return 0
         try:
             afile = open(self.aliasfile, "r")
             lines = afile.read().split("\n")

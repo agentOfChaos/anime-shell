@@ -15,7 +15,7 @@ class MainWindow(QtGui.QMainWindow):
         self.cliargs = cliargs
         self.mainwidget = QtGui.QWidget(self)
         self.controller = glados.Controller(self)
-        self.resize(800, 500)
+        self.resize(800, 550)
         self.setWindowTitle(title)
         self.setupLayout()
         self.setCentralWidget(self.mainwidget)
@@ -33,7 +33,7 @@ class MainWindow(QtGui.QMainWindow):
         elements.mainTextEdit(self, self.lvl1_horiz)
 
     def test(self):
-        self.controller.shell.write("ls -l\n")
+        self.consoletext.send("ls -l\n")
 
 
 def main(commandline):

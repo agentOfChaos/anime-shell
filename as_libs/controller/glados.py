@@ -82,9 +82,19 @@ class Controller(QtCore.QObject):
         else:
             pass  # TODO notify?
 
+    def restart_shell(self):
+        self.window.consoletext.stop()
+        self.window.consoletext.execute()
+
     def processAcquiredVoice(self, data):
         filtered, shouldrun = self.filter.filter(data)
-        #TODO: rewrite
+        print(repr(filtered))
+        if shouldrun:
+            filtered += "\n"
+        if filtered == "panic\n":
+            self.restart_shell()
+        else:
+            self.window.consoletext.send(bytes(filtered, "utf-8"))
 
     def runcommand(self, text):
         pass # TODO: rewrite
